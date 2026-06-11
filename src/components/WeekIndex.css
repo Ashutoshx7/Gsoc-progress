@@ -1,0 +1,67 @@
+.week-index-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  width: 100vw;
+  pointer-events: none;
+  display: none;
+}
+
+.week-index {
+  position: absolute;
+  top: calc(var(--header-top) + 1rem);
+  left: calc(70% + 2.75rem);
+  display: flex;
+  flex-direction: column;
+  gap: 1.05rem;
+  pointer-events: auto;
+}
+
+.week-index h3 {
+  margin-bottom: 0.35rem;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.week-index-link {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  width: max-content;
+  color: color-mix(in srgb, var(--text-primary) 38%, transparent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  transition: color 0.25s ease;
+}
+
+.week-index-link span {
+  width: 0;
+  height: 1px;
+  background: transparent;
+  transition: width 0.25s ease, background-color 0.25s ease;
+}
+
+.week-index-link:hover {
+  color: var(--text-secondary);
+}
+
+.week-index-link.is-current {
+  color: var(--text-primary);
+}
+
+.week-index-link.is-current span {
+  width: 0.75rem;
+  background: var(--text-muted);
+}
+
+@media (min-width: 1024px) {
+  .week-index-shell {
+    display: block;
+  }
+}

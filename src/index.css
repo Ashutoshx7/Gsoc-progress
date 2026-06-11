@@ -1,0 +1,211 @@
+:root {
+  /* Default: Dark Theme (like Portfolio-v2) */
+  --bg-color: #0a0a0a;
+  --text-primary: #f4f4f5; /* zinc-100 */
+  --text-secondary: #a1a1aa; /* zinc-400 */
+  --text-muted: #71717a; /* zinc-500 */
+  --accent-color: #3b82f6;
+  --nav-bg: rgba(10, 10, 10, 0.82);
+  --nav-border: rgba(255, 255, 255, 0.15);
+  --nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  --divider: #27272a; /* zinc-800 */
+  --guide-line: rgba(255, 255, 255, 0.15);
+  --guide-node: rgba(255, 255, 255, 0.25);
+  --soft-border: rgba(255, 255, 255, 0.15);
+  --faint-border: rgba(255, 255, 255, 0.08);
+  --soft-surface: rgba(24, 24, 27, 0.55);
+  --row-hover: rgba(39, 39, 42, 0.22);
+}
+
+:root[data-theme='light'] {
+  --bg-color: #ffffff;
+  --text-primary: #18181b; /* zinc-900 */
+  --text-secondary: #71717a; /* zinc-500 */
+  --text-muted: #a1a1aa; /* zinc-400 */
+  --nav-bg: rgba(255, 255, 255, 0.8);
+  --nav-border: rgba(0, 0, 0, 0.05);
+  --nav-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+  --divider: #d4d4d8; /* zinc-300 */
+  --guide-line: rgba(0, 0, 0, 0.3);
+  --guide-node: rgba(0, 0, 0, 0.5);
+  --soft-border: rgba(0, 0, 0, 0.12);
+  --faint-border: rgba(0, 0, 0, 0.08);
+  --soft-surface: rgba(244, 244, 245, 0.85);
+  --row-hover: rgba(244, 244, 245, 0.9);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-in {
+  animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.progress-frame {
+  --header-top: clamp(10.5rem, 22vh, 13.5rem);
+  --header-height: 112px;
+  --rail-left: 30%;
+  --rail-right: 30%;
+  min-height: 100vh;
+  width: 100%;
+  position: relative;
+  overflow-x: hidden;
+  background: var(--bg-color);
+}
+
+.guide-line,
+.guide-node {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.guide-line-vertical {
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-right: 1px solid var(--guide-line);
+  mask-image: repeating-linear-gradient(
+    to bottom,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  -webkit-mask-image: repeating-linear-gradient(
+    to bottom,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+.guide-line-left {
+  left: var(--rail-left);
+}
+
+.guide-line-right {
+  right: var(--rail-right);
+}
+
+.guide-line-horizontal {
+  left: 0;
+  right: 0;
+  height: 0;
+  border-bottom: 1px solid var(--guide-line);
+  mask-image: repeating-linear-gradient(
+    to right,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  -webkit-mask-image: repeating-linear-gradient(
+    to right,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+.guide-line-header-top {
+  top: var(--header-top);
+}
+
+.guide-line-header-bottom {
+  top: calc(var(--header-top) + var(--header-height));
+}
+
+.guide-node {
+  width: 2px;
+  height: 2px;
+  background: var(--guide-node);
+  z-index: 2;
+}
+
+.guide-node-top-left {
+  top: var(--header-top);
+  left: var(--rail-left);
+  transform: translate(-50%, -50%);
+}
+
+.guide-node-top-right {
+  top: var(--header-top);
+  right: var(--rail-right);
+  transform: translate(50%, -50%);
+}
+
+.guide-node-bottom-left {
+  top: calc(var(--header-top) + var(--header-height));
+  left: var(--rail-left);
+  transform: translate(-50%, -50%);
+}
+
+.guide-node-bottom-right {
+  top: calc(var(--header-top) + var(--header-height));
+  right: var(--rail-right);
+  transform: translate(50%, -50%);
+}
+
+/* Layout */
+main {
+  position: relative;
+  z-index: 1;
+  padding: var(--header-top) 1rem 4rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  main {
+    margin-left: var(--rail-left);
+    margin-right: var(--rail-right);
+    width: auto;
+  }
+}
+
+@media (max-width: 767px) {
+  .progress-frame {
+    --header-top: 8rem;
+    --header-height: 104px;
+  }
+
+  .guide-line-vertical,
+  .guide-node {
+    display: none;
+  }
+
+  main {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+}

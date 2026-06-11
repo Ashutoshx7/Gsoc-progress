@@ -1,0 +1,170 @@
+.navbar {
+  position: absolute;
+  top: 0.45rem;
+  left: var(--rail-left);
+  right: var(--rail-right);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 0.25rem;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .navbar {
+    right: var(--rail-right);
+  }
+}
+
+.theme-toggle-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.3s ease, transform 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.nav-divider {
+  width: 1px;
+  height: 14px;
+  background: var(--divider);
+  margin: 0 0.45rem 0 auto;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.brand-icon {
+  color: var(--accent-color);
+  width: 24px;
+  height: 24px;
+}
+
+.nav-links-container {
+  position: absolute;
+  left: 50%;
+  max-width: calc(100% - 3.25rem);
+  transform: translateX(-50%);
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+}
+
+.nav-links-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0.42rem;
+  min-width: max-content;
+}
+
+.nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+  overflow: visible;
+}
+
+.link-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.active-week {
+  color: var(--text-secondary);
+}
+
+.active-week:hover {
+  color: var(--text-primary);
+}
+
+.active-week.current-route {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.coming-soon-week {
+  color: color-mix(in srgb, var(--text-primary) 38%, transparent);
+  cursor: not-allowed;
+}
+
+.coming-soon-week:hover {
+  color: color-mix(in srgb, var(--text-primary) 54%, transparent);
+}
+
+.week-num {
+  display: inline-flex;
+  min-width: 1.05rem;
+  justify-content: center;
+  line-height: 1;
+}
+
+.coming-soon-week .tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-primary);
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.2s ease;
+  border: 1px solid var(--soft-border);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.coming-soon-week:hover .tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(5px);
+}
+
+@media (max-width: 767px) {
+  .navbar {
+    left: 1.25rem;
+    right: 1.25rem;
+    top: 0.45rem;
+  }
+
+  .nav-links {
+    gap: 0.38rem;
+  }
+}
