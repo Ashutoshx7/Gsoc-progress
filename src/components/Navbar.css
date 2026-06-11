@@ -1,18 +1,53 @@
 .navbar {
   position: absolute;
-  top: 0.45rem;
+  top: clamp(1.05rem, 2.65vh, 1.75rem);
   left: var(--rail-left);
   right: var(--rail-right);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 32px;
-  padding: 0 0.25rem;
-  background: transparent;
+  justify-content: center;
+  height: 40px;
+  padding: 0 0.65rem;
+  background: color-mix(in srgb, var(--bg-color) 88%, transparent);
   border: 0;
   border-radius: 0;
   z-index: 100;
-  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.navbar::before,
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  pointer-events: none;
+  mask-image: repeating-linear-gradient(
+    to right,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+  -webkit-mask-image: repeating-linear-gradient(
+    to right,
+    black 0,
+    black 1px,
+    transparent 1px,
+    transparent 6px
+  );
+}
+
+.navbar::before {
+  top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--guide-line) 55%, transparent);
+}
+
+.navbar::after {
+  bottom: 0;
+  border-bottom: 1px solid var(--guide-line);
 }
 
 @media (min-width: 768px) {
@@ -29,10 +64,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.3s ease, transform 0.2s ease;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease, color 0.3s ease, transform 0.2s ease;
 }
 
 .theme-toggle-btn:hover {
+  background: var(--row-hover);
   color: var(--text-primary);
 }
 
@@ -42,9 +81,9 @@
 
 .nav-divider {
   width: 1px;
-  height: 14px;
-  background: var(--divider);
-  margin: 0 0.45rem 0 auto;
+  height: 16px;
+  background: color-mix(in srgb, var(--divider) 82%, transparent);
+  margin: 0 0.6rem;
 }
 
 .nav-brand {
@@ -64,10 +103,11 @@
 }
 
 .nav-links-container {
-  position: absolute;
-  left: 50%;
-  max-width: calc(100% - 3.25rem);
-  transform: translateX(-50%);
+  position: static;
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: none;
+  padding: 0 0.35rem;
   overflow-x: auto;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
@@ -80,7 +120,8 @@
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 0.42rem;
+  justify-content: center;
+  gap: clamp(0.34rem, 0.68vw, 0.72rem);
   min-width: max-content;
 }
 
@@ -93,8 +134,23 @@
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  transition: color 0.2s ease;
+  height: 1.75rem;
+  padding: 0 0.03rem;
+  transition: color 0.2s ease, opacity 0.2s ease;
   overflow: visible;
+}
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0.15rem;
+  width: 0;
+  height: 1px;
+  background: currentColor;
+  opacity: 0;
+  transform: translateX(-50%);
+  transition: width 0.2s ease, opacity 0.2s ease;
 }
 
 .link-content {
@@ -116,8 +172,13 @@
   font-weight: 800;
 }
 
+.active-week.current-route::after {
+  width: 0.8rem;
+  opacity: 0.7;
+}
+
 .coming-soon-week {
-  color: color-mix(in srgb, var(--text-primary) 38%, transparent);
+  color: color-mix(in srgb, var(--text-primary) 34%, transparent);
   cursor: not-allowed;
 }
 
@@ -161,10 +222,17 @@
   .navbar {
     left: 1.25rem;
     right: 1.25rem;
-    top: 0.45rem;
+    top: 0.7rem;
+    height: 36px;
+    padding: 0 0.45rem;
   }
 
   .nav-links {
+    justify-content: flex-start;
     gap: 0.38rem;
+  }
+
+  .nav-divider {
+    margin: 0 0.45rem;
   }
 }

@@ -70,8 +70,8 @@ a {
 }
 
 .progress-frame {
-  --header-top: clamp(10.5rem, 22vh, 13.5rem);
-  --header-height: 112px;
+  --header-top: clamp(7.35rem, 15.25vh, 9.75rem);
+  --header-height: 108px;
   --rail-left: 30%;
   --rail-right: 30%;
   min-height: 100vh;
@@ -195,7 +195,7 @@ main {
 
 @media (max-width: 767px) {
   .progress-frame {
-    --header-top: 8rem;
+    --header-top: 6.5rem;
     --header-height: 104px;
   }
 
