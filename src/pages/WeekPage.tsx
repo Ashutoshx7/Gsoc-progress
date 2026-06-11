@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useParams } from 'react-router-dom';
-import { Calendar, CheckCircle2, CircleDashed } from 'lucide-react';
+import { Calendar, CheckCircle2, CircleDashed, Maximize2, Minimize2 } from 'lucide-react';
 import './WeekPage.css';
 
 type WeekData = {
@@ -20,6 +22,29 @@ type WeekData = {
 
 const WeekPage = () => {
   const { id } = useParams();
+  const [isPromptExpanded, setIsPromptExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!isPromptExpanded) {
+      return undefined;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsPromptExpanded(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isPromptExpanded]);
 
   const weekData: Record<string, WeekData> = {
     '1': {
@@ -112,15 +137,18 @@ const WeekPage = () => {
         },
         reviewPrompt: `You are the Sugar Activity on Demand planner.
 
-Your job is to turn a learner's idea into a structured Sugar Activity specification.
-Generate a Sugar Activity for Sugar OS / Sugar desktop, not a generic Python or GTK app.
+Your job is to turn a learner's idea into a structured Sugar Activity specification, ready to be expanded into an installable Sugar Activity bundle.
+Generate a Sugar Activity for Sugar OS / Sugar desktop, not a generic Python, GTK, or web app.
 
 Runtime constraints:
-- Use Python 3, GTK3, and the Sugar toolkit.
-- The main class must extend sugar3.activity.activity.Activity.
-- Do not use Gtk.Application as the app root.
-- Respect Sugar bundle structure: activity/, activity.info, setup.py, activity.py, icon, metadata, and XO packaging.
-- Use read_file() and write_file() when the activity needs Journal persistence.
+- Use Python 3, PyGObject (GTK3), and the Sugar toolkit (sugar3).
+- The main class must extend sugar3.activity.activity.Activity. Do not use Gtk.Application, Gtk.Window, or a bare Gtk widget as the app root.
+- Build the toolbar with sugar3.graphics.toolbarbox.ToolbarBox, sugar3.activity.widgets.ActivityToolbarButton, and sugar3.activity.widgets.StopButton.
+- Use sugar3.graphics.style for spacing, fonts, and zoom-aware sizing instead of hardcoded pixel values.
+- Use sugar3.graphics.xocolor.XoColor (from the learner's profile when available) for icon and canvas colors.
+- Respect Sugar bundle structure: activity/activity.py, activity/activity.info, setup.py, icons/, MANIFEST, and .xo packaging.
+- Use Activity.read_file() and Activity.write_file() for Journal persistence; never write to arbitrary paths on disk.
+- Treat collaboration (sugar3.presence, Telepathy) as optional: only include it if the learner's idea explicitly needs sharing or co-play, and the single-player path must work fully without it.
 
 Learner context:
 - The activity should support constructionist learning: Use, Modify, Create.
@@ -169,34 +197,37 @@ Template module: Creation
 - Learning goal should focus on expression, reflection, and iteration.
 
 Output contract:
-Return a structured ActivitySpec JSON object with:
-- name
-- summary
-- learner_goal
-- age_range
-- template_category
-- files_to_generate
-- activity_info metadata
-- required_assets
-- journal_behavior
-- safe_edit_regions
-- reflection_prompts
-- validation_notes
-- license
+Return a single ActivitySpec JSON object, with no extra prose, matching this shape:
+- name (string): human-readable activity title.
+- bundle_id (string): reverse-DNS bundle identifier, e.g. org.sugarlabs.LearnerIdeaActivity.
+- summary (string): one to two sentences describing what the activity does.
+- learner_goal (string): the constructionist learning goal (Use, Modify, Create framing).
+- age_range (string): approximate target age range, e.g. "6-10".
+- template_category (string): one of "Logic & math", "Tools/utilities", "Games", "Creation".
+- files_to_generate (array of objects): each with path (string) and purpose (string), covering at minimum activity/activity.py, activity/activity.info, setup.py, and an icon under icons/.
+- activity_info (object): name, bundle_id, exec, icon, activity_version, license fields for activity.info.
+- required_assets (array of strings): icon files, fonts, sounds, or images the bundle needs.
+- journal_behavior (string): how read_file()/write_file() are used, or "none" if the activity has no persistence.
+- safe_edit_regions (array of strings): named places in the generated code a learner can safely change (e.g. colors, word lists, level data).
+- reflection_prompts (array of strings): one to three questions that invite the learner to reflect on what they built or played.
+- validation_notes (array of strings): anything the validator should pay special attention to for this activity.
+- license (string): SPDX identifier matching the requested License control.
+- warnings (array of strings): empty if the request is fully safe; otherwise explains what was changed or omitted and why.
 
 Safety rules:
-- Do not generate subprocess calls.
-- Do not generate arbitrary filesystem access outside the activity directory.
-- Do not generate unnecessary network calls.
-- Do not import modules unavailable in the Sugar environment.
-- If the learner request cannot be implemented safely, return a warning and a safer alternative.
+- Do not generate subprocess, os.system, eval, exec, or dynamic code execution of any kind.
+- Do not generate filesystem access outside the activity's own bundle directory and the Journal API.
+- Do not generate network calls (sockets, urllib, requests, http.client) unless Policy = Standard explicitly allows an online feature the learner asked for; never include network access under Policy = Local or Strict.
+- Do not import modules outside the Sugar/GTK/Python standard library allowlist.
+- Do not collect, store, or transmit personally identifiable information about the learner.
+- If the learner request cannot be implemented safely within these constraints, return a warning describing the conflict and propose the closest safe alternative instead of silently dropping the unsafe part.
 
 Validation expectations:
-- Generated Python must parse with AST.
-- Imports must pass the Sugar allowlist.
-- activity.info and setup.py must be present.
-- License metadata, SPDX headers, and LICENSE file must match.
-- Bundle output must be installable as a .xo activity.`,
+- Generated Python must parse with AST with no syntax errors.
+- Imports must pass the Sugar allowlist check.
+- activity/activity.info and setup.py must be present and internally consistent (matching bundle_id, exec, and icon).
+- License metadata, SPDX headers in source files, and the LICENSE file must all match the selected license.
+- Bundle output must be installable as a .xo activity on Sugar OS / Sugar desktop without manual edits.`,
         templatePrompts: [
           {
             name: 'Logic & math',
@@ -261,12 +292,13 @@ The learning goal must focus on expression, reflection, and iteration.`
           },
           {
             label: 'Sugar runtime context',
-            text: 'The prompt gives the model concrete Sugar OS / Sugar desktop constraints so it does not drift into generic GTK application patterns.',
+            text: 'The prompt gives the model concrete Sugar OS / Sugar desktop constraints so it does not drift into generic GTK or web app patterns.',
             bullets: [
-              'Use Python, GTK3, and the Sugar toolkit through sugar3.activity.Activity.',
-              'Do not use Gtk.Application as the app root; generated classes should extend activity.Activity.',
-              'Respect Sugar bundle structure: activity/, activity.info, setup.py, activity.py, icons, metadata, and .xo packaging.',
-              'Support Journal behavior through read_file() and write_file() hooks where the template needs persistence.'
+              'Use Python 3, PyGObject (GTK3), and the Sugar toolkit through sugar3.activity.activity.Activity.',
+              'Do not use Gtk.Application, Gtk.Window, or a bare widget as the app root; generated classes must extend Activity.',
+              'Build the toolbar with ToolbarBox, ActivityToolbarButton, and StopButton, and use sugar3.graphics.style and XoColor instead of hardcoded styling.',
+              'Respect Sugar bundle structure: activity/activity.py, activity/activity.info, setup.py, icons/, MANIFEST, and .xo packaging.',
+              'Support Journal behavior through Activity.read_file() and Activity.write_file() where the template needs persistence; collaboration via sugar3.presence stays optional.'
             ]
           },
           {
@@ -280,21 +312,21 @@ The learning goal must focus on expression, reflection, and iteration.`
           },
           {
             label: 'Output contract',
-            text: 'The model is asked for a structured activity spec first, so the generator can create predictable files instead of accepting arbitrary code blobs.',
+            text: 'The model is asked for a single structured ActivitySpec JSON object first, so the generator can create predictable files instead of accepting arbitrary code blobs.',
             bullets: [
-              'Return activity name, summary, template category, age range, learning goal, files, metadata, and selected license.',
-              'Separate planner reasoning from generated source files.',
-              'Include warnings when a request cannot be safely implemented inside Sugar constraints.'
+              'Return name, bundle_id, summary, learner_goal, age_range, template_category, files_to_generate, activity_info, required_assets, journal_behavior, safe_edit_regions, reflection_prompts, validation_notes, and license.',
+              'Separate planner reasoning from generated source files; files_to_generate must always include activity/activity.py, activity/activity.info, setup.py, and an icon.',
+              'Always include a warnings field, populated when a request cannot be safely implemented inside Sugar constraints.'
             ]
           },
           {
             label: 'Validation and safety area',
             text: 'The prompt is paired with validation checks before anything becomes an installable .xo bundle.',
             bullets: [
-              'Parse generated Python with AST before packaging.',
-              'Reject forbidden imports, subprocess calls, unsafe filesystem access, and unnecessary network calls.',
-              'Check activity.info, setup.py, bundle structure, SPDX headers, and LICENSE consistency.',
-              'Use retry-on-validation so the model fixes specific failures instead of silently shipping broken code.'
+              'Parse generated Python with AST before packaging; reject syntax errors outright.',
+              'Reject forbidden imports, subprocess/eval/exec, filesystem access outside the bundle and Journal API, and any network calls under Local/Strict policy.',
+              'Check activity.info, setup.py, bundle structure, SPDX headers, and LICENSE consistency against the requested license.',
+              'Use retry-on-validation so the model fixes specific failures instead of silently shipping broken or unsafe code.'
             ]
           }
         ]
@@ -324,7 +356,44 @@ The learning goal must focus on expression, reflection, and iteration.`
     { value: String(feedbackCount), label: 'Feedback items' },
   ];
 
+  const expandedPromptReader =
+    data.systemPrompt && isPromptExpanded && typeof document !== 'undefined'
+      ? createPortal(
+          <div className="prompt-reader-layer">
+            <button
+              aria-label="Close expanded system prompt"
+              className="prompt-reader-backdrop"
+              type="button"
+              onClick={() => setIsPromptExpanded(false)}
+            />
+            <div
+              aria-label="Expanded system prompt reader"
+              aria-modal="true"
+              className="review-prompt review-prompt-expanded"
+              role="dialog"
+            >
+              <div className="review-prompt-header">
+                <span>Reviewable System Prompt Draft</span>
+                <button
+                  aria-label="Shrink system prompt"
+                  aria-pressed="true"
+                  className="prompt-size-toggle"
+                  title="Shrink prompt"
+                  type="button"
+                  onClick={() => setIsPromptExpanded(false)}
+                >
+                  <Minimize2 size={15} />
+                </button>
+              </div>
+              <pre tabIndex={0}>{data.systemPrompt.reviewPrompt}</pre>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null;
+
   return (
+    <>
     <article className="week-page animate-in">
       <header className="page-header" id="week-intro" data-index-title={`Week ${id}`}>
         <div className="page-heading">
@@ -366,8 +435,20 @@ The learning goal must focus on expression, reflection, and iteration.`
             <h2>System Prompt</h2>
             <p className="description-text">{data.systemPrompt.intro}</p>
             <div className="review-prompt">
-              <span>Reviewable System Prompt Draft</span>
-              <pre>{data.systemPrompt.reviewPrompt}</pre>
+              <div className="review-prompt-header">
+                <span>Reviewable System Prompt Draft</span>
+                <button
+                  aria-label="Expand system prompt"
+                  aria-pressed="false"
+                  className="prompt-size-toggle"
+                  title="Expand prompt"
+                  type="button"
+                  onClick={() => setIsPromptExpanded(true)}
+                >
+                  <Maximize2 size={15} />
+                </button>
+              </div>
+              <pre tabIndex={0}>{data.systemPrompt.reviewPrompt}</pre>
             </div>
             <div className="template-prompt-grid">
               {data.systemPrompt.templatePrompts.map((template) => (
@@ -480,6 +561,8 @@ The learning goal must focus on expression, reflection, and iteration.`
         </section>
       )}
     </article>
+    {expandedPromptReader}
+    </>
   );
 };
 
