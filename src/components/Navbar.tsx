@@ -3,9 +3,9 @@ import { ThemeToggle } from './ThemeToggle';
 import './Navbar.css';
 
 const Navbar = () => {
-  const activeWeeks = [1, 2, 3];
   const totalWeeks = 12;
-  const weeks = Array.from({ length: totalWeeks }, (_, i) => i + 1);
+  const activeWeeks = Array.from({ length: totalWeeks }, (_, i) => i + 1);
+  const weeks = activeWeeks;
 
   return (
     <nav className="navbar">

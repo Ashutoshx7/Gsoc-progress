@@ -1,15 +1,21 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useParams } from 'react-router-dom';
-import { Calendar, CheckCircle2, CircleDashed, Maximize2, Minimize2 } from 'lucide-react';
+import { Calendar, CheckCircle2, CircleDashed, ExternalLink, Maximize2, Minimize2 } from 'lucide-react';
 import './WeekPage.css';
 
 type WeekData = {
   title: string;
   date: string;
   description: string;
+  blogUrl?: string;
   tasks: { text: string; done: boolean }[];
   feedback: { received: string; changed: string; tracking: string }[];
+  architecture?: {
+    intro: string;
+    stages: { title: string; detail: string }[];
+    loop: string;
+  };
   systemPrompt?: {
     intro: string;
     image?: { src: string; alt: string };
@@ -51,6 +57,7 @@ const WeekPage = () => {
       title: 'Frontend Architecture & Reviewable Prototype',
       date: 'May 26 - June 1, 2026',
       description: 'Built the complete GTK3 frontend first so Walter and Devin could review the full Activity on Demand flow before backend work began. The prototype covered Use, Modify, Create, the Prompt Screen, the Reflective Studio, code review, version history, and the learner-facing constructionist workflow.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-06-03-gsoc-26-ashutoshx7-week01',
       tasks: [
         { text: 'Built the Use, Modify, Create entry flow for the learner progression', done: true },
         { text: 'Implemented the Prompt Screen with suggestion chips, templates, planner, and policy controls', done: true },
@@ -71,14 +78,15 @@ const WeekPage = () => {
       ],
       media: [
         { type: 'youtube', src: 'https://www.youtube.com/embed/ApgKoOP22is' },
-        { type: 'image', src: 'https://raw.githubusercontent.com/Ashutoshx7/www-v2/add-gsoc-week01-blog-ashutosh/public/assets/Images/gsoc26-ashutoshx7/aod-prompt-screen.png', alt: 'Prompt Screen with suggestion chips, template selector, and planner controls' },
-        { type: 'image', src: 'https://raw.githubusercontent.com/Ashutoshx7/www-v2/add-gsoc-week01-blog-ashutosh/public/assets/Images/gsoc26-ashutoshx7/aod-studio-preview.png', alt: 'Reflective Studio with AI co-designer and learning sidebar' }
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-prompt-screen.png', alt: 'Prompt Screen with suggestion chips, template selector, and planner controls' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-preview.png', alt: 'Reflective Studio with AI co-designer and learning sidebar' }
       ]
     },
     '2': {
       title: 'Generator, Mentor Feedback & Licensing',
       date: 'June 2 - June 8, 2026',
       description: 'Started building aodgenerator.py, the backend generator that turns a structured activity spec into a real Sugar Activity. This week also converted Walter\'s Week 1 review into concrete product changes: learner-centered template categories and a proper license selector.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-06-10-gsoc-26-ashutoshx7-week02',
       tasks: [
         { text: 'Scaffolded full Sugar Activity projects with activity/, activity.info, setup.py, activity.py, and README.md', done: true },
         { text: 'Added template-based code emission, metadata generation, and .xo bundle packaging', done: true },
@@ -103,14 +111,15 @@ const WeekPage = () => {
         }
       ],
       media: [
-        { type: 'image', src: 'https://raw.githubusercontent.com/Ashutoshx7/www-v2/add-gsoc-week02-blog-ashutosh/public/assets/Images/gsoc26-ashutoshx7/aod-templates-creation.png', alt: 'Prompt Screen with learner-centered template categories' },
-        { type: 'image', src: 'https://raw.githubusercontent.com/Ashutoshx7/www-v2/add-gsoc-week02-blog-ashutosh/public/assets/Images/gsoc26-ashutoshx7/aod-license-bsd3.png', alt: 'Prompt Screen showing the new license selector' }
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-templates-creation.png', alt: 'Prompt Screen with learner-centered template categories' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-license-bsd3.png', alt: 'Prompt Screen showing the new license selector' }
       ]
     },
     '3': {
       title: 'System Prompts & Three-Phase Testing',
       date: 'June 9 - June 15, 2026',
       description: 'Designed the modular system prompt, wired the LLM pipeline, and turned Walter\'s testing question into a three-phase validation strategy. The work moved Activity on Demand from a prototype generator toward something that can be trusted, reviewed, and measured.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-06-17-gsoc-26-ashutoshx7-week03',
       tasks: [
         { text: 'Designed a modular system prompt that tells the model to build Sugar Activities, not generic Python apps', done: true },
         { text: 'Wire up end-to-end LLM pipeline', done: true },
@@ -331,6 +340,296 @@ The learning goal must focus on expression, reflection, and iteration.`
           }
         ]
       }
+    },
+    '4': {
+      title: 'Automated Validation & AST Parsing',
+      date: 'June 16 - June 22, 2026',
+      description: 'Finalized the Phase 1 model comparison (Claude won) and built the Automated Validation Pipeline. This pipeline acts as a safety bouncer, using Python\'s ast module to statically analyze the generated code for syntax errors, forbidden imports, and structure before bundling the .xo file.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-06-25-gsoc-26-ashutoshx7-week04',
+      tasks: [
+        { text: 'Concluded Phase 1 model comparison and selected Claude as the default LLM', done: true },
+        { text: 'Built the Automated Validation Pipeline using Python\'s ast module', done: true },
+        { text: 'Implemented import whitelisting and structure validation checks', done: true },
+        { text: 'Generated 10 test prompts successfully end-to-end into installable .xo bundles', done: true },
+        { text: 'Started integrating the RAG context layer with real Sugar Activity code', done: true }
+      ],
+      feedback: [
+        {
+          received: 'Walter stressed the importance of ensuring the LLM does not generate malicious or unsafe code (e.g. subprocess calls or file system traversal) for children.',
+          changed: 'I implemented strict AST parsing to whitelist safe imports and reject any unsafe modules like os or subprocess. If caught, it triggers a self-healing regeneration loop.',
+          tracking: 'The automated validation acts as a strict programmatic guardrail that is checked before any .xo bundle is even created.'
+        },
+        {
+          received: 'The LLM sometimes forgot the precise GTK3 constraints for Sugar, despite the system prompt instructions.',
+          changed: 'I introduced a lightweight RAG (Retrieval-Augmented Generation) layer that feeds real snippets of vetted Sugar Activities to the model right when it needs them.',
+          tracking: 'The UI generation quality improved significantly because the model now has a perfect reference for complex API calls.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-validation-toggle.png', alt: 'Validation controls for checking generated Sugar activities before packaging' }
+      ]
+    },
+    '5': {
+      title: 'Provider Controls, Optional Validation & Flatpak',
+      date: 'June 23 - June 29, 2026',
+      description: 'Turned the working generation pipeline into something other people could configure and install. I added a provider panel, separated quick preview checks from mandatory bundle checks, packaged the studio as a Flatpak, and completed a stability pass before wider user testing.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-07-01-gsoc-26-ashutoshx7-week05',
+      tasks: [
+        { text: 'Added provider, API key, model, and local endpoint controls to the Prompt Screen', done: true },
+        { text: 'Made complete preview validation optional without weakening mandatory bundle-time safety checks', done: true },
+        { text: 'Created a Flatpak manifest and a testable installable bundle', done: true },
+        { text: 'Normalized provider and malformed-response errors into useful messages', done: true },
+        { text: 'Hardened worker-thread UI updates and persisted provider settings', done: true }
+      ],
+      feedback: [
+        {
+          received: 'When I considered removing slower checks, Walter pushed me to keep the safety and make the speed versus validation choice visible instead.',
+          changed: 'I split validation into a skippable preview stage and a mandatory bundle stage. Fast preview never became a path around the final safety checks.',
+          tracking: 'The interface states the selected validation mode, while every installable bundle still passes AST, import, structure, and license checks.'
+        },
+        {
+          received: 'Mentors and testers needed a way to run the studio without recreating my complete Sugar development environment.',
+          changed: 'I packaged the application as a Flatpak and resolved the Sugar toolkit and GTK dependencies inside its sandbox.',
+          tracking: 'The project could now be handed to a tester as one installable bundle instead of a setup guide and a source checkout.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-validation-toggle.png', alt: 'Prompt Screen with provider settings and the optional preview validation control' }
+      ]
+    },
+    '6': {
+      title: 'User Testing, Prompt Enhancement & Standalone Move',
+      date: 'June 30 - July 6, 2026',
+      description: 'Started small-group testing and learned that real users often begin with only two or three words. I added visible prompt enhancement and local retrieval over installed Sugar activities, then moved Activity on Demand out of the Sugar shell fork into a standalone project.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-07-08-gsoc-26-ashutoshx7-week06',
+      tasks: [
+        { text: 'Ran the first Phase 2 sessions with Sugar contributors and a teacher', done: true },
+        { text: 'Added explicit and automatic prompt enhancement for short ideas', done: true },
+        { text: 'Kept the enhanced brief visible and editable before generation', done: true },
+        { text: 'Added local retrieval over installed Sugar activities for real implementation patterns', done: true },
+        { text: 'Extracted the studio into its own repository and added a test that forbids jarabe imports', done: true }
+      ],
+      feedback: [
+        {
+          received: 'Testers typed short ideas such as math game, typing practice, and a game about planets. My carefully written private prompts had hidden this normal behavior.',
+          changed: 'I added an enhancement step that expands a thin prompt into a useful activity brief while showing every addition back to the learner.',
+          tracking: 'Detailed prompts remain untouched, short prompts receive help, and the learner can edit or reject the enhanced brief before generation.'
+        },
+        {
+          received: 'Walter advised me to stop narrating the test and watch what people naturally did.',
+          changed: 'I treated observed behavior as product input and focused the week on the prompt experience rather than blaming weak results on the model.',
+          tracking: 'Testing notes now connect each repeated point of confusion to a concrete change in enhancement, retrieval, or interface behavior.'
+        },
+        {
+          received: 'The original shell-embedded version was difficult for anyone outside a Sugar development checkout to try or contribute to.',
+          changed: 'I separated the project by domain into core, llm, generation, service, preview, exports, and ui modules.',
+          tracking: 'A no-jarabe test protects the standalone boundary, while the Sugar toolkit remains the supported integration layer.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-prompt-screen.png', alt: 'Prompt Screen where a learner can enhance a short idea before generation' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-modify-create.png', alt: 'Activity on Demand running as a standalone studio with a Sugar-style home ring' }
+      ]
+    },
+    '7': {
+      title: 'Runtime Checks, Self-Repair & Behavior Critique',
+      date: 'July 7 - July 13, 2026',
+      description: 'Closed the gap between code that parses and an activity that actually works. I built an isolated GTK runtime gate, turned tracebacks into focused repair feedback, checked Journal persistence, and added a critic that reviews reachable behavior before packaging.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-07-15-gsoc-26-ashutoshx7-week07',
+      tasks: [
+        { text: 'Ran every candidate in a separate GTK subprocess with a hard timeout', done: true },
+        { text: 'Pumped GTK events and tested a Journal write and read round-trip', done: true },
+        { text: 'Converted runtime failures into structured feedback for a self-healing retry', done: true },
+        { text: 'Added a behavior critic for handlers, win logic, and real saved state', done: true },
+        { text: 'Required every critic patch to pass static and runtime checks again', done: true }
+      ],
+      feedback: [
+        {
+          received: 'A tester generated an activity that passed every static check and then crashed as soon as it opened.',
+          changed: 'I stopped treating valid source as proof and added a runtime harness that actually starts the activity and exercises its first lifecycle steps.',
+          tracking: 'Runtime status, tracebacks, Journal results, and critic outcomes are saved with the generation job.'
+        },
+        {
+          received: 'Generated code is untrusted and a crash or infinite initialization loop must not freeze the studio itself.',
+          changed: 'Candidates run outside the studio process with a minimal environment, a strict timeout, and clean handling for headless systems.',
+          tracking: 'A failed process becomes a rejected gate with repair feedback, not a frozen interface or a broken accepted revision.'
+        }
+      ],
+      architecture: {
+        intro: 'The debugging layer asks a different question at each stage. A failure loops back as focused evidence, while a passing candidate moves forward to packaging.',
+        stages: [
+          { title: 'Learner idea', detail: 'Enhance the prompt, retrieve Sugar patterns, and build a plan.' },
+          { title: 'Generate', detail: 'Create one complete activity candidate from the structured plan.' },
+          { title: 'Static gate', detail: 'Check syntax, imports, bundle structure, safety, and request fidelity.' },
+          { title: 'Runtime gate', detail: 'Start the activity in an isolated GTK process and test Journal persistence.' },
+          { title: 'Behavior critic', detail: 'Review handlers, feedback, delayed state, and reachable game outcomes.' },
+          { title: 'Accepted project', detail: 'Keep the source, metadata, diagnostics, and package-ready revision.' }
+        ],
+        loop: 'When a gate finds a focused problem, a transactional SEARCH/REPLACE repair is applied and the candidate starts the checks again. If the patch fails, the last working source is preserved.'
+      }
+    },
+    '8': {
+      title: 'Live Refinement, Packaging & First Release',
+      date: 'July 14 - July 20, 2026',
+      description: 'With the generation engine becoming dependable, I focused on what a learner touches. The studio gained click-to-refine, safe focused patches, full revision history, generated Sugar icons, an AppImage, and its first public release under Sugar Labs.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-07-22-gsoc-26-ashutoshx7-week08',
+      tasks: [
+        { text: 'Added click-to-refine so a learner can point at the preview and request a focused change', done: true },
+        { text: 'Applied refinements as SEARCH/REPLACE patches instead of complete regeneration', done: true },
+        { text: 'Saved every accepted change as a revision with source comparison', done: true },
+        { text: 'Generated sanitized Sugar-style SVG icons with a deterministic fallback', done: true },
+        { text: 'Built the portable AppImage and published v1.1.0 under Sugar Labs', done: true }
+      ],
+      feedback: [
+        {
+          received: 'A small requested change should not erase the parts of an activity that already work.',
+          changed: 'Refinement now uses exact focused patches, rejects ambiguous replacements, and keeps the previous revision available.',
+          tracking: 'The Versions screen records every accepted refinement and shows the precise source diff between revisions.'
+        },
+        {
+          received: 'Testers needed the lowest-friction way possible to run the studio on a normal Linux desktop.',
+          changed: 'I added a portable AppImage alongside source and Flatpak installation paths.',
+          tracking: 'v1.1.0 provided a tagged public release and downloadable build that somebody could try without a development checkout.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-versions.png', alt: 'Versions view showing saved revisions and an exact source diff' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-preview.png', alt: 'Generated Sugar activity running in the live preview' }
+      ]
+    },
+    '9': {
+      title: 'Release Testing, Annotation & Activity Naming',
+      date: 'July 21 - July 27, 2026',
+      description: 'Put v1.1.0 in front of real users, including Walter, and watched them create and refine activities. Their feedback led to a visual annotation flow and exposed a simple but important omission: learners had no clear place to name what they made.',
+      blogUrl: 'https://www.sugarlabs.org/news/all/2026-07-29-gsoc-26-ashutoshx7-week09',
+      tasks: [
+        { text: 'Tested the release with people creating real activities rather than prepared demos', done: true },
+        { text: 'Observed Walter build and refine a Periodic Table Explorer', done: true },
+        { text: 'Added annotations that carry a selected preview location into the refinement request', done: true },
+        { text: 'Converted the missing activity-name control into a concrete follow-up task', done: true },
+        { text: 'Kept the test, learn, patch, and retest loop moving through the release', done: true }
+      ],
+      feedback: [
+        {
+          received: 'Walter liked the generated activity but could not find a place to name it, so the chosen name felt random.',
+          changed: 'I documented the complete naming flow needed before installation and export, which became the basis for the Week 11 community contribution.',
+          tracking: 'The issue stayed connected to the exact testing session and was later closed by the merged naming pull request.'
+        },
+        {
+          received: 'When people describe a desired change, they naturally point at the part of the screen they mean.',
+          changed: 'I added an annotation flow that combines the selected preview region with the learner\'s written refinement.',
+          tracking: 'Refinement requests now preserve both the instruction and the visual location that gave it meaning.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-preview.png', alt: 'A generated activity running during the v1.1.0 testing round' }
+      ]
+    },
+    '10': {
+      title: 'Multiple Learning Areas, Sugar-Native Icons & Images',
+      date: 'July 28 - August 3, 2026',
+      description: 'Expanded activity ideas beyond one category, redesigned all learning-area icons after Walter\'s feedback, cleaned up preview and version review, and let learners attach sketches, worksheets, photographs, or screenshots as visual references.',
+      blogUrl: 'https://github.com/sugarlabs/www-v2/pull/1036',
+      tasks: [
+        { text: 'Carried multiple learning areas through storage, clarification, enhancement, planning, and generation', done: true },
+        { text: 'Redesigned six learning-area icons using Sugar artwork conventions', done: true },
+        { text: 'Simplified the common creation path and clarified preview and revision states', done: true },
+        { text: 'Added visual-reference previews, provider capability checks, and safe fallbacks', done: true },
+        { text: 'Published v1.2.0 and v1.3.0 with the completed improvements', done: true }
+      ],
+      feedback: [
+        {
+          received: 'Walter said the category icons communicated their meaning but still looked generic rather than native to Sugar.',
+          changed: 'I rebuilt the set around Sugar\'s simple silhouettes, rounded strokes, and strong outlines, then added clear color variants for a desktop environment.',
+          tracking: 'The final selector shows one consistent visual family across Logic and Math, Science, Language, Tools, Games, and Creation.'
+        },
+        {
+          received: 'Learner choices looked important on screen but could lose their meaning later in the generation pipeline.',
+          changed: 'I traced learning areas through every handoff and added coverage for saving, reopening, clarifying, enhancing, and generating.',
+          tracking: 'Tests now verify that all selected learning areas reach the final activity specification and prompt.'
+        },
+        {
+          received: 'A reference image could overpower the written request or fail unexpectedly on a text-only provider.',
+          changed: 'I kept the learner\'s words primary, isolated provider-specific image handling, and added a fallback when vision is unavailable.',
+          tracking: 'The studio reports image capability before generation and keeps the typed idea as the source of truth.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-sugar-native-learning-areas.png', alt: 'Sugar-native learning-area icons created after Walter feedback' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-versions.png', alt: 'Improved Versions view with saved revisions and source changes' }
+      ]
+    },
+    '11': {
+      title: 'Mockup to Activity, Branding & Community Review',
+      date: 'August 4 - August 10, 2026',
+      description: 'Tested the visual-reference workflow by turning a detailed symmetry-garden mockup into a running Sugar activity. I also reviewed the first larger outside contributions, giving the studio its own icon and closing the activity naming problem found during Week 9 testing.',
+      blogUrl: 'https://github.com/sugarlabs/www-v2/pull/1037',
+      tasks: [
+        { text: 'Used the symmetry-garden mockup as an end-to-end visual-reference test', done: true },
+        { text: 'Verified symmetry modes, drawing tools, colors, challenges, and requirement tracking in the generated result', done: true },
+        { text: 'Reviewed and merged PR #13 for the Sugar Activity Studio icon and desktop identity', done: true },
+        { text: 'Reviewed and merged PR #14 for naming before installation and export', done: true },
+        { text: 'Tested Sugar and desktop SVG behavior, dialog order, theme styling, and the complete naming flow', done: true }
+      ],
+      feedback: [
+        {
+          received: 'Walter\'s Periodic Table Explorer test showed that activity naming had to be a learner decision, not a random generated detail.',
+          changed: 'The final flow asks for the activity name first and handles licensing as a separate decision before installation or export.',
+          tracking: 'Tests follow the selected name through the dialogs, project metadata, installation, and exported bundle.'
+        },
+        {
+          received: 'Rakshit Yadav contributed both the studio identity and the naming feature, each of which needed several review rounds.',
+          changed: 'I reviewed the whole user journey and explained the reason behind requested changes instead of reviewing only the changed lines.',
+          tracking: 'PRs #13 and #14 merged with tests and consistent behavior across the Sugar shell and regular Linux desktop.'
+        },
+        {
+          received: 'The generated symmetry activity was not a pixel copy of the mockup.',
+          changed: 'I evaluated it by the intended interactions and used the revision tools for visual refinement instead of treating the first generation as final.',
+          tracking: 'The mockup and running result remain together as a direct record of what the visual workflow understood and what still needed iteration.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-symmetry-garden-mockup.png', alt: 'Original wireframe mockup for the symmetry-garden activity' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-symmetry-garden-result.png', alt: 'Generated Sugar symmetry activity running a butterfly-wings challenge' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/sugar-aod-studio.svg', alt: 'Sugar Activity Studio icon contributed by Rakshit Yadav' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-license-bsd3.png', alt: 'License choice shown after the learner confirms the activity name' }
+      ]
+    },
+    '12': {
+      title: 'Final Reliability Pass, Reflection & v1.4.0',
+      date: 'August 11 - August 20, 2026',
+      description: 'Used the final week to close gaps across the complete learner journey. I strengthened request fidelity, tested delayed behavior, added deterministic Sugar API repairs, protected refinements, improved reflection prompts, reviewed community fixes, and released v1.4.0.',
+      blogUrl: 'https://github.com/sugarlabs/www-v2/pull/1038',
+      tasks: [
+        { text: 'Kept the learner\'s original request and mechanics visible through clarification, retrieval, planning, and generation', done: true },
+        { text: 'Extended the runtime harness to exercise delayed callbacks and later activity states', done: true },
+        { text: 'Added deterministic repairs for known Sugar API mistakes with complete revalidation', done: true },
+        { text: 'Preserved learner-approved refinements and stored diagnostics with every revision', done: true },
+        { text: 'Redesigned Activity Tools around short and optional reflection prompts', done: true },
+        { text: 'Reviewed community PRs #16, #17, and #19 and released v1.4.0', done: true }
+      ],
+      feedback: [
+        {
+          received: 'An activity can open successfully and still fail when a timer fires or a later game state is reached.',
+          changed: 'I kept GTK events moving for longer and extended the runtime and critic checks to delayed callbacks and reachable states.',
+          tracking: 'A candidate must now survive more than startup before it can be treated as a dependable activity.'
+        },
+        {
+          received: 'A repair could solve a crash while accidentally removing the learner\'s newest refinement.',
+          changed: 'I made the latest learner-approved revision the transaction base and kept revision-specific diagnostics and rollback.',
+          tracking: 'Every repair either preserves the refined behavior and passes all gates or leaves the previous working revision untouched.'
+        },
+        {
+          received: 'An empty refinement box expected learners to already know what kind of feedback to give.',
+          changed: 'I added short reflection questions about what the learner notices, wants to change, or could make clearer and more fun.',
+          tracking: 'The prompts remain optional and support learner decisions instead of turning reflection into another required form.'
+        }
+      ],
+      media: [
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-review.png', alt: 'Review view with generated source and guided reflection prompts' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/aod-studio-versions.png', alt: 'Versions view preserving learner refinements and source differences' },
+        { type: 'image', src: '/gsoc26-ashutoshx7/sugar-activity-studio-banner.png', alt: 'Sugar Activity Studio final create, preview, refine, and export workflow' }
+      ]
     }
   };
 
@@ -424,7 +723,46 @@ The learning goal must focus on expression, reflection, and iteration.`
         <section className="content-section" id="week-overview" data-index-title="Overview">
           <h2>Overview</h2>
           <p className="description-text">{data.description}</p>
+          {data.blogUrl && (
+            <a
+              className="week-blog-link"
+              href={data.blogUrl}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Read the original weekly blog
+              <ExternalLink size={14} />
+            </a>
+          )}
         </section>
+
+        {data.architecture && (
+          <section
+            className="content-section architecture-section"
+            id="week-architecture"
+            data-index-title="Architecture"
+          >
+            <h2>Architecture</h2>
+            <p className="description-text">{data.architecture.intro}</p>
+            <div className="architecture-flow" aria-label="Activity generation and validation flow">
+              {data.architecture.stages.map((stage, index) => (
+                <div className="architecture-step-wrap" key={stage.title}>
+                  <article className="architecture-stage">
+                    <span>{String(index + 1).padStart(2, '0')}</span>
+                    <div>
+                      <h3>{stage.title}</h3>
+                      <p>{stage.detail}</p>
+                    </div>
+                  </article>
+                  {index < data.architecture!.stages.length - 1 && (
+                    <div className="architecture-arrow" aria-hidden="true">↓</div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <p className="architecture-loop">{data.architecture.loop}</p>
+          </section>
+        )}
 
         {data.systemPrompt && (
           <section
